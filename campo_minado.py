@@ -1,4 +1,6 @@
 from random import randint
+import time
+import numpy as np
 
 
 class CampoMinado:
@@ -8,12 +10,23 @@ class CampoMinado:
         self.tamanho = tamanho ** 2
         # vai para falso quando for Game Over e True quando for fim de jogo
         self.bombas = self.criar_bombas()
-        print(self.bombas)
+        print(f"posição bombas -> {self.bombas}")
         self.jogada_feitas = []
         self.next_game = True
         self.status = None
         self.message = None
         self.valor_qt_bomba_campo = None
+        self.display = self.create_display_game(tamanho)
+        self.display_campo_minado()
+
+    def display_campo_minado(self):
+        for display in self.display:
+            print(display)
+
+    def create_display_game(self, tamanho):
+        np_campos = np.chararray((tamanho, tamanho), unicode=True)
+        np_campos[:] = 'X'
+        return np_campos.tolist()
 
     def criar_bombas(self, area_bomba=20):
 
@@ -46,6 +59,7 @@ class CampoMinado:
         self.message = message
         self.valor_qt_bomba_campo = valor_qt_bomba_campo
         self.status = status
+        self.display_campo_minado()
         if isinstance(status, bool):
             self.next_game = False
 
@@ -63,6 +77,7 @@ class CampoMinado:
             return
         self.jogada_feitas.append(posicao_jogada)
         if posicao_jogada in self.bombas:
+            self.exibir_bombas()
             self.update_message(message="GAME OVER", status=False)
             return
 
@@ -75,6 +90,24 @@ class CampoMinado:
             message='Faça sua Próxima jogada!\n\n'
         )
 
+    def exibir_bombas(self):
+        for bomba in self.bombas:
+            linha_coluna = self.posicao_para_coordenada(bomba)
+            self.alterar_display_game(
+                linha=linha_coluna['linha'],
+                coluna=linha_coluna['coluna'],
+                count_bombas='B'
+            )
+
+    def posicao_para_coordenada(self, posicao):
+        linha = int(posicao/self.borda) + 1
+        coluna = posicao - ((linha-1)*self.borda)
+
+        if coluna == 0:
+            linha = linha - 1
+            coluna = self.borda
+        return {'linha':linha, 'coluna': coluna}
+
     def verificar_qts_bombas_redor(self, linha, coluna):
         list_linha = list(filter(lambda x: (x >= 1 and x <= self.borda), [linha - 1, linha, linha + 1]))
         list_coluna = list(filter(lambda x: (x >= 1 and x <= self.borda), [coluna - 1, coluna, coluna + 1]))
@@ -83,10 +116,13 @@ class CampoMinado:
         count_bombas = 0
         for posicao_linha_coluna in comb_posicao:
             posicao = self.obter_posicao_jogada(linha=posicao_linha_coluna[0], coluna=posicao_linha_coluna[1])
-            print(f"verificar seguinte posição -> {posicao}")
             if posicao in self.bombas:
                 count_bombas = count_bombas + 1
+        self.alterar_display_game(linha, coluna, count_bombas)
         return count_bombas
+
+    def alterar_display_game(self, linha, coluna, count_bombas):
+        self.display[linha-1][coluna-1] = str(count_bombas)
 
 
 def start_game():
@@ -98,7 +134,7 @@ def start_game():
     cm = CampoMinado(tamanho=int(tamanho))
 
     while True:
-        print('\n\nFaça sua jogada: \n')
+        print('\nFaça sua jogada: \n')
         linha = input('Escolha a linha:')
         coluna = input('Escolha a coluna:')
         cm.jogada(linha=int(linha),coluna=int(coluna))
@@ -109,15 +145,32 @@ def start_game():
         else:
             print(cm.status)
             print(cm.message)
+
+            time_sleep = 0.35
+            print('-' * 39)
+            time.sleep(time_sleep)
+            print('-' * 39)
+            time.sleep(time_sleep)
+            print('-' * 39)
+            time.sleep(time_sleep)
+            print('-' * 39)
+            time.sleep(time_sleep)
+            print('-' * 39)
             break
 
 
 if __name__ == '__main__':
+    time_sleep = 0.35
     print('-' * 39)
+    time.sleep(time_sleep)
     print('-' * 39)
+    time.sleep(time_sleep)
     print('-' * 15 + 'Bem Vindo' + '-' * 15)
+    time.sleep(time_sleep)
     print('-' * 39)
+    time.sleep(time_sleep)
     print('-' * 39 + '\n')
+    time.sleep(1)
     while True:
         print('Escolha as seguintes opções:\n')
         print('1) INICIAR JOGO\n')
