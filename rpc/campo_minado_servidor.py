@@ -1,9 +1,10 @@
 from random import randint
-import time
 import numpy as np
 
+import rpyc
+from rpyc.utils.server import ThreadedServer
 
-class CampoMinado:
+class CampoMinadoRpyc(rpyc.Service):
 
     def __init__(self, tamanho=8):
         self.borda = tamanho
@@ -27,6 +28,7 @@ class CampoMinado:
         np_campos = np.chararray((tamanho, tamanho), unicode=True)
         np_campos[:] = 'X'
         return np_campos.tolist()
+
 
     def criar_bombas(self, area_bomba=20):
 
@@ -125,64 +127,6 @@ class CampoMinado:
         self.display[linha-1][coluna-1] = str(count_bombas)
 
 
-def start_game():
-    tamanho = input('Insira o tamanho do seu campo minado: ')
-    if int(tamanho) < 6:
-        print('Tamanha mínimo aceitável é 6')
-        return
-
-    cm = CampoMinado(tamanho=int(tamanho))
-
-    while True:
-        print('\nFaça sua jogada: \n')
-        linha = input('Escolha a linha:')
-        coluna = input('Escolha a coluna:')
-        cm.jogada(linha=int(linha),coluna=int(coluna))
-        if cm.next_game:
-            print(cm.message)
-            print(cm.valor_qt_bomba_campo)
-            continue
-        else:
-            print(cm.status)
-            print(cm.message)
-
-            time_sleep = 0.35
-            print('-' * 39)
-            time.sleep(time_sleep)
-            print('-' * 39)
-            time.sleep(time_sleep)
-            print('-' * 39)
-            time.sleep(time_sleep)
-            print('-' * 39)
-            time.sleep(time_sleep)
-            print('-' * 39)
-            break
-
-
-if __name__ == '__main__':
-    time_sleep = 0.35
-    print('-' * 39)
-    time.sleep(time_sleep)
-    print('-' * 39)
-    time.sleep(time_sleep)
-    print('-' * 15 + 'Bem Vindo' + '-' * 15)
-    time.sleep(time_sleep)
-    print('-' * 39)
-    time.sleep(time_sleep)
-    print('-' * 39 + '\n')
-    time.sleep(1)
-    while True:
-        print('Escolha as seguintes opções:\n')
-        print('1) INICIAR JOGO\n')
-        print('2) Sair')
-        opcao = input('Escolha opção 1 ou 2: ')
-        if opcao == '1':
-            start_game()
-            continue
-        elif opcao == '2':
-            print('Fim de Jogo')
-
-            break
-        else:
-            print('opção incorreta')
-            continue
+def server():
+    t = ThreadedServer(CampoMinadoRpyc, port=18861)
+    t.start()
