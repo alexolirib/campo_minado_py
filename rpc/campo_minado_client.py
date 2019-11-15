@@ -1,27 +1,36 @@
 import time
 import rpyc
 
+
+def display_campo_minado(self):
+    for display in self.display:
+        print(display)
+
 def start_game():
-    tamanho = input('Insira o tamanho do seu campo minado: ')
-    if int(tamanho) < 6:
-        print('Tamanha mínimo aceitável é 6')
-        return
+    # tamanho = input('Insira o tamanho do seu campo minado: ')
+    # if int(tamanho) < 6:
+    #     print('Tamanha mínimo aceitável é 6')
+    #     return
 
     config = {'allow_public_attrs': True}
     cm = rpyc.connect('localhost', 18861, config=config)
 
     while True:
+        for display in cm.root.get_display():
+            print(display)
         print('\nFaça sua jogada: \n')
         linha = input('Escolha a linha:')
         coluna = input('Escolha a coluna:')
         cm.root.jogada(linha=int(linha),coluna=int(coluna))
-        if cm.root.next_game:
-            print(cm.root.message)
-            print(cm.root.valor_qt_bomba_campo)
+        if cm.root.get_next_game():
+            print(cm.root.get_message())
+            print(cm.root.get_valor_qt_bomba_campo())
             continue
         else:
-            print(cm.root.status)
-            print(cm.root.message)
+            for display in cm.root.get_display():
+                print(display)
+            print(cm.root.get_status())
+            print(cm.root.get_message())
 
             time_sleep = 0.35
             print('-' * 39)
@@ -37,7 +46,6 @@ def start_game():
 
 
 def client():
-
     time_sleep = 0.35
     print('-' * 39)
     time.sleep(time_sleep)

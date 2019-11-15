@@ -20,6 +20,21 @@ class CampoMinadoRpyc(rpyc.Service):
         self.display = self.create_display_game(tamanho)
         self.display_campo_minado()
 
+    def exposed_get_message(self):
+        return self.message
+
+    def exposed_get_display(self):
+        return self.display
+
+    def exposed_get_valor_qt_bomba_campo(self):
+        return self.valor_qt_bomba_campo
+
+    def exposed_get_status(self):
+        return self.status
+
+    def exposed_get_next_game(self):
+        return self.next_game
+
     def display_campo_minado(self):
         for display in self.display:
             print(display)
@@ -65,7 +80,7 @@ class CampoMinadoRpyc(rpyc.Service):
         if isinstance(status, bool):
             self.next_game = False
 
-    def jogada(self, linha, coluna):
+    def exposed_jogada(self, linha, coluna):
         if not self.next_game:
             return
         if (linha < 1 or linha > self.borda) or (coluna < 1 or coluna > self.borda):
