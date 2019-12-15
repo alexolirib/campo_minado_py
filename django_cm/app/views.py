@@ -2,6 +2,7 @@ import math
 
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.utils.safestring import SafeText
 
 from app.forms import JogadaForm
 from app.models import Jogada, Game
@@ -15,6 +16,7 @@ def start_game(request):
 
         return redirect('play_game', pk=game.id)
 
+
 def play_game(request, pk=None):
     try:
         game = Game.objects.get(id=pk)
@@ -25,22 +27,50 @@ def play_game(request, pk=None):
         form = JogadaForm()
 
     if request.method == "POST":
-        form = JogadaForm(request.POST)
-        if form.is_valid():
-            jogada = form.save(commit=False)
-            jogada.created_date = timezone.now()
-            jogada.save()
+        linha = request.POST['linha']
+        coluna = request.POST['coluna']
+        borda = math.sqrt(game.tamanho)
+        pass
+        if not (int(linha) < 1 or int(linha) > int(borda)) or  not (int(coluna) < 1 or int(coluna) > int(borda)):
+            if not Jogada.objects.filter(game=game, linha=linha, coluna=coluna):
+                game.fazer_jogada(linha, coluna)
+
+
+
+        form = JogadaForm()
+
     else:
         form = JogadaForm()
 
-    jogadas = Jogada.objects.all()
+    jogadas = Jogada.objects.filter(game=game)
 
-    loop_time = range(1,int(math.pow(game.tamanho,1/2)+1))
+    table = '<table style="border-collapse: collapse; border: 1px solid black">'
+    for l in range(1, 9):
+        table += '<tr>'
+        for c in range(1, 9):
+            jogada = Jogada.objects.filter(game=game,linha=l, coluna=c)
+            if jogada:
+                table += f"""
+                    <td style="border: 1px solid black">
+                        <button>{jogada[0].value}</button>
+                    </td>
+                """
+            else:
+                table += f"""
+                    <td style="border: 1px solid black">
+                        <button>?</button>
+                    </td>
+                """
+        table += '</tr>'
+
+    table += '</table>'
+    #transforma o elemento em html
+    table = SafeText(table)
+
 
     context = {
         'form': form,
         'jogadas': jogadas,
-        'loop_time': loop_time
+        'table': table
     }
-
     return render(request, 'game.html', context)

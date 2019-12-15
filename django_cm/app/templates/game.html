@@ -31,18 +31,7 @@
             </div>
 
             <div class="col-md-6">
-                <table style="border-collapse: collapse; border: 1px solid black">
-                    {% for i in  loop_time %}
-                        <tr>
-                            {% for i in  loop_time %}
-                                <td style="border: 1px solid black">
-                                    <button>?</button>
-                                </td>
-                            {% endfor %}
-                        </tr>
-                    {% endfor %}
-
-                </table>
+                {{ table }}
             </div>
         </div>
     </div>
